@@ -1,0 +1,22 @@
+html, body {
+    height: 100%;
+    margin: 0;
+    overflow: hidden;
+    background-color: black;
+}
+
+#canvas-container {
+    border-width: 5px; /* Change only border-width */
+    border-style: solid; /* Maintain solid border style */
+    border-color: blue; /* Maintain white border color */
+    overflow: hidden;
+    border-radius: 50%;
+    background-color: black; /* Replace with your desired color (e.g., blue) */
+    margin: 20px auto; /* center the container */
+    transition: border-color 0.5s ease; /* Transition border color */
+}
+
+#canvas-container:hover {
+    border-color: darkgrey; /* Maintain border color */
+}
+
