@@ -6,17 +6,16 @@ html, body {
 }
 
 #canvas-container {
-    border-width: 5px; /* Change only border-width */
-    border-style: solid; /* Maintain solid border style */
-    border-color: blue; /* Maintain white border color */
+    border-width: 5px; 
+    border-style: solid; 
+    border-color: darkblue; 
     overflow: hidden;
     border-radius: 50%;
-    background-color: black; /* Replace with your desired color (e.g., blue) */
-    margin: 20px auto; /* center the container */
-    transition: border-color 0.5s ease; /* Transition border color */
+    background-color: black; 
+    margin: 20px auto; 
+    transition: border-color 0.5s ease; 
 }
 
 #canvas-container:hover {
-    border-color: darkgrey; /* Maintain border color */
+    border-color: blue; 
 }
-
