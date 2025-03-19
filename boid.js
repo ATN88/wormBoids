@@ -52,25 +52,7 @@ class Boid {
         this.vx += combinedForce[0];
         this.vy += combinedForce[1];
 
-        const xMargin = 200;
-        const yMargin = 10;
-        let forceX = 0;
-        let forceY = 0;
 
-        if (this.x < xMargin) {
-            forceX = (xMargin - this.x) * this.maxSpeed * 0.001;
-        } else if (this.x > this.canvas.width - xMargin) {
-            forceX = (this.x - (this.canvas.width - xMargin)) * this.maxSpeed * 0.0001 * -1;
-        }
-
-        if (this.y < yMargin) {
-            forceY = (yMargin - this.y) * this.maxSpeed * 0.1;
-        } else if (this.y > canvasHeight - yMargin) { //Replaced seaFloorY with canvasHeight
-            forceY = (canvasHeight - yMargin - this.y) * this.maxSpeed * 0.1;
-        }
-
-        this.vx += forceX;
-        this.vy += forceY;
 
         let mouseForce = [0, 0];
         const mouseAffectRadius = 200;
@@ -88,6 +70,18 @@ class Boid {
             this.vx = (this.vx / speed) * this.maxSpeed;
             this.vy = (this.vy / speed) * this.maxSpeed;
         }
+
+    if (mouseInfluence) { // only apply if mouse influence is true.
+        const dx = mouseX - this.x;
+        const dy = mouseY - this.y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+
+        if (dist < this.mouseInfluenceRadius) {
+            mouseInfluenceVector[0] = dx;
+            mouseInfluenceVector[1] = dy;
+            this.angle += Math.atan2(mouseInfluenceVector[1], mouseInfluenceVector[0]) * this.mouseInfluenceStrength;
+        }
+    }
 
         this.x += this.vx;
         this.y += this.vy;
@@ -205,7 +199,7 @@ class Boid {
 
     calculateFlee(predators) {
         let fleeX = 0, fleeY = 0;
-        let fleeRadius = 100;
+        let fleeRadius = 100*(Math.random()+1);
 
         for (const predator of predators) {
             const dx = predator.x - this.x;
