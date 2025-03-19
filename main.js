@@ -1,7 +1,7 @@
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 
-const widthHeight = 600;
+const widthHeight = 400;
 
 canvas.width = widthHeight;
 canvas.height = widthHeight; // Make it square for a perfect circle
@@ -21,18 +21,18 @@ function createCircularClip(ctx, centerX, centerY, radius) {
 
 let boids = [];
 let worms = [];
-const numBoids = 200;
+let numBoids = 100;
 const numWorms = 2;
 const boidSize = 1.5;
 const boidResize = 1;
-const maxSpeed = 2;
+const maxSpeed = 1;
 const maxForce = 0.2;
-const viewRadius = 100;
+const viewRadius = 75;
 const separationRadius = 30;
 const alignmentWeight = 0.1;
-const cohesionWeight = 0.1;
+const cohesionWeight = 0.2;
 const separationWeight = 0.2;
-const mouseInfluence = -1.5;
+const mouseInfluence = 0.1; // make negative to have the mouse repel
 let mouseX = 0;
 let mouseY = 0;
 let lightScale = 0;
@@ -48,16 +48,30 @@ function initialize() {
     }
 }
 
+
+// to avoid boids congregating in mouse's last know position <-- Not working very well - needs fixing
+let isMouseOverCanvas = false;
+canvas.addEventListener('mouseover', () => {
+    isMouseOverCanvas = true;
+});
+canvas.addEventListener('mouseout', () => {
+    isMouseOverCanvas = false;
+});
+
+
 function update() {
-    boids.forEach(boid => {
-        boid.update(boids, worms, mouseX, mouseY, canvas.height);
-    });
-    worms.forEach(worm => {
-        worm.update(boids);
-    });
-    lightScale = Math.sin(Date.now() * 0.001) * 30-20;
-    wormLightScale = Math.sin(Date.now() * 0.003 + Math.PI) * 50;
+    for (const worm of worms) {
+        worm.update(boids, worms); // Pass the 'worms' array here!
+    }
+
+    for (let i = boids.length - 1; i >= 0; i--){
+        boids[i].update(boids, worms, mouseX, mouseY, canvas.height, isMouseOverCanvas ? mouseInfluence : 0);
+    }
+
+    lightScale = Math.sin(Date.now() * 0.001) * 30 - 20;
+    wormLightScale = Math.sin(Date.now() * 0.0003 + Math.PI) * 50 - 50;
 }
+
 
 function draw() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -68,8 +82,8 @@ function draw() {
     
     boids.forEach(boid => {
         // Layered drawing
-        boid.draw(1.25, 2.5, lightScale, ctx);
-        boid.draw(0, 1, lightScale+20, ctx);
+        boid.draw(1.25, 2.5, lightScale *2, ctx);
+        boid.draw(0, 1, (lightScale+40) *2, ctx);
     });
     worms.forEach(worm => {
         worm.draw(ctx);
@@ -91,7 +105,7 @@ canvas.addEventListener('mousemove', (e) => {
 function createCircleCursor() {
     const tempCanvas = document.createElement('canvas');
     const tempCtx = tempCanvas.getContext('2d');
-    const cursorSize = 10; // Match the boid size
+    const cursorSize = boidSize*5; // Match the boid size
     tempCanvas.width = cursorSize;
     tempCanvas.height = cursorSize;
 
@@ -143,10 +157,36 @@ canvasContainerElement.addEventListener('mouseover', () => {
 
 canvasContainerElement.addEventListener('mouseout', () => {
     cancelAnimationFrame(borderAnimationId);
-    canvasContainerElement.style.borderColor = 'darkgray'; // Reset to the original hover color
+    canvasContainerElement.style.borderColor = 'darkblue'; // Reset to the original hover color
 });
+
+function checkAndSpawnBoids() {
+    if (boids.length < numBoids) {
+	console.log(boids.length, numBoids);
+        let boidsToSpawn = numBoids - boids.length;
+        for (let i = 0; i < boidsToSpawn; i++) {
+            const baseColor = `rgb(${Math.floor(Math.random() * 55)}, ${Math.floor(Math.random() * 55)}, ${Math.floor(Math.random() * 255)})`;
+            boids.push(new Boid(
+                canvas.width,
+                canvas.height,
+                maxSpeed,
+                alignmentWeight,
+                cohesionWeight,
+                separationWeight,
+                maxForce,
+                mouseInfluence,
+                separationRadius,
+                viewRadius,
+                canvas,
+                baseColor
+            ));
+        }
+    }
+}
 
 updateCursor();
 
 initialize();
+setInterval(checkAndSpawnBoids, 1000); // 5000 milliseconds = 5 seconds
+
 animate();
