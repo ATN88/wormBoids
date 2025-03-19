@@ -21,10 +21,9 @@ function calculateShadeVariation(baseColor, lightScale) {
     lightScale = Math.max(minLightScale, Math.min(maxLightScale, lightScale));
 
     // Adjust all RGB components
-    r = Math.max(minBrightness, Math.min(255, r - lightScale * 2)); // Reduced multiplier
-    g = Math.max(minBrightness, Math.min(255, g - lightScale * 2)); // Reduced multiplier
-    b = Math.max(minBrightness, Math.min(255, b - lightScale * 2)); // Reduced multiplier
+    r = Math.max(minBrightness, Math.min(255, r - lightScale)); // Reduced multiplier
+    g = Math.max(minBrightness, Math.min(255, g - lightScale)); // Reduced multiplier
+    b = Math.max(minBrightness, Math.min(255, b - lightScale)); // Reduced multiplier
 
     return `rgb(${r}, ${g}, ${b})`;
 }
-
