@@ -2,20 +2,137 @@ html, body {
     height: 100%;
     margin: 0;
     overflow: hidden;
-    background-color: black;
+    background: linear-gradient(to bottom, rgb(80, 80, 80), rgb(30, 40, 70));
+    font-family: "Boldonse", system-ui;
+    font-weight: 400;
+    color: #000028;
 }
 
 #canvas-container {
-    border-width: 5px; 
-    border-style: solid; 
-    border-color: darkblue; 
-    overflow: hidden;
+    border: 5px solid #000044;
     border-radius: 50%;
-    background-color: black; 
-    margin: 20px auto; 
-    transition: border-color 0.5s ease; 
+    overflow: hidden;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2),
+                inset 0 0 10px rgba(0, 0, 0, 0.1);
+    background: linear-gradient(to top, #000011, #000044);
+    margin: 20px auto;
+    transition: border-color 0.5s ease;
+    animation: glow 5s infinite alternate;
 }
 
 #canvas-container:hover {
-    border-color: blue; 
+    border-color: #000044;
+}
+
+@keyframes glow {
+    from {
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.2), inset 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+    to {
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.3), inset 0 0 20px rgba(0, 0, 0, 0.2);
+    }
+}
+
+#controls {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 20px;
+}
+
+#boidCountLabel {
+    margin-bottom: 10px;
+    text-align: center;
+     order: 0;
+}
+
+#wormCountLabel {
+    margin-bottom: 10px;
+    text-align: center;
+    order: 2;
+}
+
+input[type="range"] {
+    -webkit-appearance: none;
+    appearance: none;
+    background: transparent;
+    cursor: pointer;
+    width: 12.5em;
+    font-size: 1.5rem;
+    color: #000044;
+    --thumb-height: 0.525em;
+    --track-height: 0.125em;
+    --track-color: rgba(0, 0, 0, 0.2);
+    --brightness-hover: 180%;
+    --brightness-down: 80%;
+    --clip-edges: 0.125em;
+    order: 1;
+    margin-bottom: 20px;
+}
+
+input[type="range"]:focus {
+    outline: none;
+}
+
+/* === WebKit styles (Chrome, Safari) === */
+input[type="range"]::-webkit-slider-runnable-track {
+    background: var(--track-color);
+    border-radius: var(--track-height);
+    height: var(--track-height);
+    cursor: pointer;
+    /*The line below is crucial*/
+     background-image: linear-gradient(to right, #000044, #000044);
+    background-size: 100% var(--track-height);
+    background-repeat: no-repeat;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    height: var(--thumb-height);
+    width: var(--thumb-height);
+    background: currentColor;
+    border-radius: 50%;
+    margin-top: calc((var(--track-height) - var(--thumb-height)) / 2);
+    position: relative;
+    box-shadow: none;
+    filter: brightness(100%);
+}
+
+input[type="range"]:hover::-webkit-slider-thumb {
+    filter: brightness(var(--brightness-hover));
+}
+
+input[type="range"]:active::-webkit-slider-thumb {
+    filter: brightness(var(--brightness-down));
+}
+
+/* === Firefox styles === */
+input[type="range"]::-moz-range-track {
+    background: var(--track-color);
+    border-radius: var(--track-height);
+    height: var(--track-height);
+    cursor: pointer;
+    /*The line below is crucial*/
+    background-image: linear-gradient(to right, #000044, #000044);
+    background-size: 100% var(--track-height);
+    background-repeat: no-repeat;
+}
+
+input[type="range"]::-moz-range-thumb {
+    height: var(--thumb-height);
+    width: var(--thumb-height);
+    background: currentColor;
+    border: none;
+    border-radius: 50%;
+    box-shadow: none;
+    filter: brightness(100%);
+}
+
+input[type="range"]:hover::-moz-range-thumb {
+    filter: brightness(var(--brightness-hover));
+}
+
+input[type="range"]:active::-moz-range-thumb {
+    filter: brightness(var(--brightness-down));
 }
