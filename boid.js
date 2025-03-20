@@ -177,24 +177,31 @@ class Boid {
         return [sepX, sepY];
     }
 
-    draw(offset, boidResize, lightScale, ctx) {
-        let offsetX = 0;
-        let offsetY = 0;
+draw(offset, boidResize, lightScale, ctx) {
+    let offsetX = 0;
+    let offsetY = 0;
 
-        if (offset !== 0) {
-            offsetX = -2 * offset * (this.vx / Math.sqrt(this.vx * this.vx + this.vy * this.vy));
-            offsetY = -2 * offset * (this.vy / Math.sqrt(this.vx * this.vx + this.vy * this.vy));
-        }
+    ctx.shadowBlur = 50;
+    ctx.shadowColor = this.baseColor; // Set the shadow color to the boid's base color
 
-        ctx.beginPath();
-        ctx.arc(this.x + offsetX, this.y + offsetY, boidSize * boidResize, 0, Math.PI * 2);
-
-        const shadeVariation = calculateShadeVariation(this.baseColor, lightScale);
-
-        ctx.fillStyle = shadeVariation;
-        ctx.fill();
-        ctx.closePath();
+    if (offset !== 0) {
+        offsetX = -2 * offset * (this.vx / Math.sqrt(this.vx * this.vx + this.vy * this.vy));
+        offsetY = -2 * offset * (this.vy / Math.sqrt(this.vx * this.vx + this.vy * this.vy));
     }
+
+    ctx.beginPath();
+    ctx.arc(this.x + offsetX, this.y + offsetY, boidSize * boidResize, 0, Math.PI * 2);
+
+    const shadeVariation = calculateShadeVariation(this.baseColor, lightScale);
+
+    ctx.fillStyle = shadeVariation;
+    ctx.fill();
+
+    ctx.filter = 'none'; // Reset filter
+    ctx.closePath();
+
+    ctx.shadowBlur = 0; // Reset shadow, very important to set to 0, not 2
+}
 
 
     calculateFlee(predators) {
