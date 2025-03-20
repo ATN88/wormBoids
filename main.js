@@ -1,7 +1,7 @@
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 
-const widthHeight = 400;
+const widthHeight = 600;
 
 canvas.width = widthHeight;
 canvas.height = widthHeight; // Make it square for a perfect circle
@@ -21,8 +21,8 @@ function createCircularClip(ctx, centerX, centerY, radius) {
 
 let boids = [];
 let worms = [];
-let numBoids = 100;
-const numWorms = 2;
+//let numBoids = 50;
+let numWorms = 1;
 const boidSize = 1.5;
 const boidResize = 1;
 const maxSpeed = 1;
@@ -31,7 +31,7 @@ const viewRadius = 75;
 const separationRadius = 30;
 const alignmentWeight = 0.1;
 const cohesionWeight = 0.2;
-const separationWeight = 0.2;
+const separationWeight = 0.3;
 const mouseInfluence = 0.1; // make negative to have the mouse repel
 let mouseX = 0;
 let mouseY = 0;
@@ -70,6 +70,7 @@ function update() {
 
     lightScale = Math.sin(Date.now() * 0.001) * 30 - 20;
     wormLightScale = Math.sin(Date.now() * 0.0003 + Math.PI) * 50 - 50;
+    checkAndSpawnBoids()
 }
 
 
@@ -145,7 +146,7 @@ let borderAnimationId; // Variable to store the animation frame ID
 
 function animateBorderColor() {
     const lightScale = Math.sin(Date.now() * 0.001) * 50;
-    const oscillatingColor = calculateShadeVariation("rgb(55, 55, 128)", lightScale); // Use a gray base color
+    const oscillatingColor = calculateShadeVariation("rgb(0, 0, 68)", lightScale); // Use same color as the background
 
     canvasContainerElement.style.borderColor = oscillatingColor;
     borderAnimationId = requestAnimationFrame(animateBorderColor);
@@ -157,18 +158,52 @@ canvasContainerElement.addEventListener('mouseover', () => {
 
 canvasContainerElement.addEventListener('mouseout', () => {
     cancelAnimationFrame(borderAnimationId);
-    canvasContainerElement.style.borderColor = 'darkblue'; // Reset to the original hover color
+    canvasContainerElement.style.borderColor = '#000044'; // Reset to the original hover color
 });
 
+// Slider integration
+const boidSlider = document.getElementById('boidSlider');
+const boidCountLabel = document.getElementById('boidCountLabel');
+const wormSlider = document.getElementById('wormSlider');
+const wormCountLabel = document.getElementById('wormCountLabel');
+
+// Initialize numBoids with the slider's initial value
+let numBoids = parseInt(boidSlider.value);
+boidCountLabel.textContent = numBoids;
+wormCountLabel.textContent = numWorms;
+
+// Function to update boid count based on the slider value
+function updateBoidCount() {
+    numBoids = parseInt(boidSlider.value);
+    boidCountLabel.textContent = numBoids;
+    checkAndSpawnBoids(); // Let checkAndSpawnBoids handle the rest
+checkAndSpawnWorms();
+}
+
+            function updateWormCount() {
+                numWorms = parseInt(wormSlider.value);
+                wormCountLabel.textContent = numWorms;
+                checkAndSpawnWorms();
+            }
+
+// Initial check
+initialize();
+checkAndSpawnBoids();
+
+// Add event listener to the slider
+boidSlider.addEventListener('input', updateBoidCount);
+wormSlider.addEventListener('input', updateWormCount);
+
 function checkAndSpawnBoids() {
+	//console.log(boids.length, numBoids);
     if (boids.length < numBoids) {
-	console.log(boids.length, numBoids);
-        let boidsToSpawn = numBoids - boids.length;
-        for (let i = 0; i < boidsToSpawn; i++) {
+        // Add boids until boids.length === numBoids
+        while (boids.length < numBoids) {
+            // Use the oscillating color logic here
             const baseColor = `rgb(${Math.floor(Math.random() * 55)}, ${Math.floor(Math.random() * 55)}, ${Math.floor(Math.random() * 255)})`;
             boids.push(new Boid(
-                canvas.width,
-                canvas.height,
+                Math.random() * canvas.width,
+                Math.random() * canvas.height,
                 maxSpeed,
                 alignmentWeight,
                 cohesionWeight,
@@ -178,15 +213,27 @@ function checkAndSpawnBoids() {
                 separationRadius,
                 viewRadius,
                 canvas,
-                baseColor
+                baseColor // Pass the calculated baseColor
             ));
         }
+    } else if (boids.length > numBoids) {
+        // Remove boids until boids.length === numBoids
+        boids.splice(numBoids, boids.length - numBoids);
     }
 }
 
+            function checkAndSpawnWorms() {
+                if (worms.length < numWorms) {
+                    while (worms.length < numWorms) {
+                        worms.push(new Worm(Math.random() * canvas.width, Math.random() * canvas.height, canvas));
+                    }
+                } else if (worms.length > numWorms) {
+                    worms.splice(numWorms, worms.length - numWorms);
+                }
+            }
+
 updateCursor();
 
-initialize();
-setInterval(checkAndSpawnBoids, 1000); // 5000 milliseconds = 5 seconds
+//setInterval(checkAndSpawnBoids, 1000); // 5000 milliseconds = 5 seconds
 
 animate();
