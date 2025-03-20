@@ -3,14 +3,30 @@
 <head>
     <title>Boids Simulation</title>
     <link rel="stylesheet" href="styles.css">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Boldonse&display=swap" rel="stylesheet">
 </head>
 <body>
     <div id="canvas-container">
         <canvas id="gameCanvas"></canvas>
     </div>
+    <div id="controls">
+        <label for="boidSlider">PREY: <span id="boidCountLabel">50</span></label>
+        <input type="range" id="boidSlider" min="10" max="200" value="50">
+
+    </div>
+    <div id="controls">
+        <label for="wormSlider" class="boldonse-regular">PREDAT0RS: <span id="wormCountLabel">1</span></label>
+        <input type="range" id="wormSlider" min="1" max="10" value="1">
+    </div>
+
     <script src="utils.js"></script>
     <script src="boid.js"></script>
     <script src="worm.js"></script>
     <script src="main.js"></script>
+
+
 </body>
 </html>
