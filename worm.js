@@ -4,10 +4,10 @@ class Worm {
         this.y = y;
         this.segments = [];
         this.segmentLength = 10;
-        this.numSegments = 30;
+        this.numSegments = 20;
         this.angle = Math.random() * Math.PI * 2;
-        this.speed = 1.5;
-        this.maxSpeed = 5; // Add maxSpeed property
+        this.speed = 1;
+        this.maxSpeed = 3; // Add maxSpeed property
         this.turnSpeed = 0.05;
         this.canvas = canvas;
         this.baseColor = `rgb(${Math.floor(Math.random() * 155)}, ${Math.floor(Math.random() * 55)}, ${Math.floor(Math.random() * 55)})`;
@@ -15,13 +15,19 @@ class Worm {
         this.attractForceMultiplier = 0.1;
         this.headSize = 5;
         this.segmentSize = 3;
+        this.maxLengthSegments = 40; // Add this line - maximum number of segments
 
         this.repulsionRadius = 300; // Adjust as needed
-        this.repulsionStrength = 0.005; // Adjust as needed
+        this.repulsionStrength = -0.5; // Adjust as needed
 
         this.flash = false;
         this.flashTimer = 0;
         this.flashOpacity = 1; // Add opacity variable
+
+    	this.sidewaysOffset = 0;
+    	this.sidewaysSpeed = 0.5; // Adjust for speed of zigzag
+    	this.sidewaysAmplitude = 1.2; // Adjust for width of zigzag
+
 
         for (let i = 0; i < this.numSegments; i++) {
             this.segments.push({
@@ -55,7 +61,7 @@ class Worm {
     }
 
     update(boids, worms) {
-        this.angle += (Math.random() - 0.5) * this.turnSpeed;
+        // this.angle += (Math.random() - 0.5) * this.turnSpeed;
 
         // Find the closest boid (for speed adjustment)
         let closestBoid = null;
@@ -107,18 +113,44 @@ class Worm {
         this.x -= repulsion.x;
         this.y -= repulsion.y;
 
-        // Move the worm based on the adjusted angle and speed
-        this.x += Math.cos(this.angle) * this.speed;
-        this.y += Math.sin(this.angle) * this.speed;
 
-        this.x = (this.x + this.canvas.width) % this.canvas.width;
-        this.y = (this.y + this.canvas.height) % this.canvas.height;
+    // Sideways Oscillation
+    this.sidewaysOffset = Math.sin(this.sidewaysSpeed * Date.now() / 100) * this.sidewaysAmplitude;
 
-        this.segments.unshift({
-            x: this.x,
-            y: this.y
-        });
-        this.segments.pop();
+    // Calculate combined movement vector
+    const moveX = Math.cos(this.angle) * this.speed + Math.sin(this.angle) * this.sidewaysOffset;
+    const moveY = Math.sin(this.angle) * this.speed - Math.cos(this.angle) * this.sidewaysOffset;
+
+    // Calculate magnitude (length) of the movement vector
+    const magnitude = Math.sqrt(moveX * moveX + moveY * moveY);
+
+    // Normalize the movement vector
+    let normalizedMoveX = moveX;
+    let normalizedMoveY = moveY;
+    if (magnitude !== 0) {
+        normalizedMoveX = moveX / magnitude;
+        normalizedMoveY = moveY / magnitude;
+    }
+
+    // Apply the desired speed
+    const desiredSpeed = this.speed; // Or any other desired speed
+    this.x += normalizedMoveX * desiredSpeed;
+    this.y += normalizedMoveY * desiredSpeed;
+
+    this.x = (this.x + this.canvas.width) % this.canvas.width;
+    this.y = (this.y + this.canvas.height) % this.canvas.height;
+
+    this.segments.unshift({
+        x: this.x,
+        y: this.y
+    });
+    this.segments.pop();
+
+        // Enforce maximum length
+        if (this.segments.length > this.maxLengthSegments) {
+console.log('max size reached');
+            this.segments.pop();
+        }
 
         // Collision detection and boid removal
         for (let i = boids.length - 1; i >= 0; i--) {
@@ -160,6 +192,8 @@ class Worm {
 
             ctx.beginPath();
             ctx.arc(segment.x, segment.y, segmentSize, 0, Math.PI * 2);
+
+
             ctx.fillStyle = segmentShadeVariation;
             ctx.fill();
             ctx.closePath();
